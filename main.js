@@ -1,107 +1,86 @@
-// Global variables for scene, camera, renderer, controls, and animation
-let scene, camera, renderer, controls, currentObject, mixer, animationAction, clock;
+// Initialize scene, camera, renderer, and controls
+let scene, camera, renderer, controls, currentObject;
 
-// Animation loop that updates the mixer if available
-function animate() {
-  requestAnimationFrame(animate);
-  const delta = clock.getDelta();
-  if (mixer) mixer.update(delta);
-  controls.update();
-  renderer.render(scene, camera);
-}
-
-// Initialize the scene
+// Function to initialize the scene
 function initScene() {
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(-20, -30, 30); // Adjusted camera position for a better view
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 0.3); // Adjust distance as needed
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x505050); // Black background
-; // Medium gray background
-  document.body.appendChild(renderer.domElement);
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x888888); // Medium gray background
+    document.body.appendChild(renderer.domElement);
 
-  // Clock for animation timing
-  clock = new THREE.Clock();
+    // Lighting setup
+    const ambientLight = new THREE.AmbientLight(0x404040, 2);
+    scene.add(ambientLight);
 
-  // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 40);
-  scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(5, 5, 5).normalize();
+    scene.add(directionalLight);
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 40);
-  directionalLight.position.set(5, 5, 5).normalize();
-  scene.add(directionalLight);
+    // OrbitControls for rotation-only interaction
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enablePan = false; // Disable panning
+    controls.enableZoom = false; // Disable zooming
 
-  const directionalLight2 = new THREE.DirectionalLight(0xffffff, 40);
-  directionalLight2.position.set(-5, -5, -5).normalize();
-  scene.add(directionalLight2);
-
-  // OrbitControls for interaction
-  controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enablePan = false;
-  controls.enableZoom = false;
-
-  animate();
+    animate();
 }
 
-// Load a model from the models folder
+// Function to load a specific object model into the scene
 function loadObjectModel(filename) {
-  const loader = new THREE.GLTFLoader();
+    const loader = new THREE.GLTFLoader();
 
-  loader.load(
-    `./models/${filename}`,
-    (gltf) => {
-      // Remove any previous model
-      if (currentObject) {
-        scene.remove(currentObject);
-      }
+    loader.load(
+        `./models/${filename}`, // Path to the model file
+        (gltf) => {
+            // Remove previous object if it exists
+            if (currentObject) {
+                scene.remove(currentObject);
+            }
 
-      currentObject = gltf.scene;
-      scene.add(currentObject);
-
-// Traverse the model and update transparent materials
-currentObject.traverse((child) => {
-  if (child.isMesh && child.material) {
-    // Enable transparency if it's not already set
-    child.material.transparent = true;
-    // Set an alphaTest value to help with depth sorting of transparent textures
-    child.material.alphaTest = 0.5;
-  }
-});
-
-      // If the model contains animations, set up the mixer and store the first animation clip
-      if (gltf.animations && gltf.animations.length > 0) {
-        mixer = new THREE.AnimationMixer(currentObject);
-        animationAction = mixer.clipAction(gltf.animations[0]);
-        // Do not auto-play; wait for the user to click "Play Animation"
-      }
-    },
-    (xhr) => {
-      console.log(`${filename} loaded: ${(xhr.loaded / xhr.total) * 100}%`);
-    },
-    (error) => {
-      console.error(`An error occurred while loading ${filename}:`, error);
-    }
-  );
+            // Add the new object to the scene
+            currentObject = gltf.scene;
+            scene.add(currentObject);
+        },
+        (xhr) => {
+            console.log(`${filename} loaded: ${(xhr.loaded / xhr.total) * 100}%`);
+        },
+        (error) => {
+            console.error(`An error occurred while loading ${filename}:`, error);
+        }
+    );
 }
 
-// Load the syringe model
-window.loadSyringe = function () {
-  loadObjectModel('syringe.glb');
+// Functions to load each individual object model, now globally accessible
+window.loadAspirator = function () {
+    loadObjectModel('aspirator.glb');
 };
 
-// Function to play the animation when the user clicks the button
-window.playAnimation = function () {
-  if (animationAction) {
-    // Reset and play the animation from the beginning
-    animationAction.reset();
-    animationAction.play();
-  } else {
-    console.log('No animation available for this model.');
-  }
+window.loadCurette = function () {
+    loadObjectModel('curette.glb');
 };
 
-// Initialize the scene and load the syringe model by default
+window.loadDilator = function () {
+    loadObjectModel('dilator.glb');
+};
+
+window.loadSpeculum = function () {
+    loadObjectModel('speculum.glb');
+};
+
+window.loadTenaculum = function () {
+    loadObjectModel('tenaculum.glb');
+};
+
+// Function to render the scene
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
+
+// Initialize the scene and load the default object
 initScene();
-window.loadSyringe();
+window.loadAspirator(); // Set a default object, or leave this out to start with an empty scene

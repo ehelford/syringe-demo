@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Object Viewer</title>
   <style>
     body { margin: 0; }
@@ -33,13 +33,18 @@
 </head>
 <body>
   <div id="button-container">
-    <!-- Changed button text and function call -->
     <button onclick="playAnimation()">Play Animation</button>
   </div>
 
+  <!-- Include Three.js and dependencies -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  
+  <!-- Include the SCORM API Wrapper -->
+  <script src="SCORM_API_wrapper.js"></script>
+  
+  <!-- Main application code -->
   <script type="module" src="main.js"></script>
 </body>
 </html>
